@@ -1,0 +1,14 @@
+{
+  "compilerOptions": {
+    "baseUrl": "./src",
+    "paths": {
+      "~": ["."],
+      "~/*": ["./*"]
+    },
+    "declaration": true,
+    "declarationDir": "./types",
+    "target": "es6",
+    "esModuleInterop": true,
+    "moduleResolution": "node"
+  }
+}
