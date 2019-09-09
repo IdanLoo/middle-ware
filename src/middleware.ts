@@ -23,7 +23,7 @@ function getNext<T>(ctx: T, middlewares: Middleware<T>[]): Next {
   let isCalled = false
   const first = middlewares[0]
 
-  const next = async () => {
+  const next: Next = async () => {
     if (isCalled) {
       throw ErrCalledMoreThanOnce
     }

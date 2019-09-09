@@ -1,5 +1,5 @@
 import { executorOf } from '~/middleware'
-import { Next } from '~/types'
+import { Next, Middleware } from '~/types'
 import { ErrCalledMoreThanOnce } from '~/errors'
 
 test('should exec middlewares', async () => {
@@ -18,7 +18,7 @@ test('should exec middlewares', async () => {
 test('should work correctly with asynchronous functions', async () => {
   const ctx = { name: 'test' }
 
-  const mw1 = async (ctx: any, next: Next) => {
+  const mw1: Middleware<typeof ctx> = async (ctx, next) => {
     ctx.name = 'hello'
     return next()
   }
@@ -48,7 +48,7 @@ test('should not execute middlewares which are not called by next', async () => 
 })
 
 test('should execute after all next middleware executed', async () => {
-  const mw1 = async (ctx, next: Next) => {
+  const mw1 = async (ctx: any, next: Next) => {
     expect(ctx.name).toEqual('test')
     await next()
     expect(ctx.name).toEqual('mw2')
@@ -90,4 +90,34 @@ test('should throw an error when a next method called more than once', async () 
 
   const exec = executorOf({})
   expect(exec(mw1, mw2)).rejects.toThrowError(ErrCalledMoreThanOnce)
+})
+
+test('should work with type checker', async () => {
+  type Context = {
+    name: string
+  }
+
+  type ContextMW1 = Context & {
+    age: number
+  }
+
+  type ContextMW2 = ContextMW1 & {
+    gender: 'male' | 'female'
+  }
+
+  const mw1 = async (ctx: ContextMW1, next: Next) => {
+    ctx.age = 10
+    return next()
+  }
+
+  const mw2 = async (ctx: ContextMW2, next: Next) => {
+    ctx.gender = 'male'
+    return next()
+  }
+
+  const ctx: Context = { name: 'test' }
+  const exec = executorOf(ctx)
+
+  await exec(mw1, mw2)
+  expect(ctx).toEqual({ name: 'test', age: 10, gender: 'male' })
 })
