@@ -13,7 +13,6 @@ async function exec<T>(ctx: T, middlewares: Middleware<T>[]) {
   }
 
   await getNext(ctx, middlewares)()
-  await exec(ctx, middlewares)
 }
 
 function getNext<T>(ctx: T, middlewares: Middleware<T>[]): Next {
@@ -23,6 +22,7 @@ function getNext<T>(ctx: T, middlewares: Middleware<T>[]): Next {
 
   let isCalled = false
   const first = middlewares[0]
+
   const next = async () => {
     if (isCalled) {
       throw ErrCalledMoreThanOnce
