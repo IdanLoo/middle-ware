@@ -1,4 +1,5 @@
 import { Middleware, Next } from './types'
+import { ErrCalledMoreThanOnce } from './errors'
 
 const emptyLambda = async () => {}
 
@@ -11,7 +12,7 @@ async function exec<T>(ctx: T, middlewares: Middleware<T>[]) {
     return
   }
 
-  getNext(ctx, middlewares)()
+  await getNext(ctx, middlewares)()
   await exec(ctx, middlewares)
 }
 
@@ -20,8 +21,14 @@ function getNext<T>(ctx: T, middlewares: Middleware<T>[]): Next {
     return emptyLambda
   }
 
+  let isCalled = false
   const first = middlewares[0]
   const next = async () => {
+    if (isCalled) {
+      throw ErrCalledMoreThanOnce
+    }
+
+    isCalled = true
     middlewares.shift()
     return await first(ctx, getNext(ctx, middlewares))
   }

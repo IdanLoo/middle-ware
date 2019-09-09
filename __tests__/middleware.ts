@@ -1,4 +1,6 @@
-import { executorOf, Next } from '~/middleware'
+import { executorOf } from '~/middleware'
+import { Next } from '~/types'
+import { CalledMoreThanOnce } from '~/errors'
 
 test('should exec all middlewares', async () => {
   const mw1 = jest.fn()
@@ -50,4 +52,22 @@ test('should execute all middlewares after the next called', async () => {
   await exec(mw1, mw2, mw3)
 
   expect(ctx.name).toEqual('mw1')
+})
+
+test('should throw an error when a next method called more than once', async () => {
+  const mw1 = async (ctx: any, next: Next) => {
+    await next()
+    await next()
+    ctx.name = 'mw1'
+  }
+
+  const mw2 = async (ctx: any, next: Next) => {
+    await next()
+    ctx.name = 'mw2'
+  }
+
+  const exec = executorOf({})
+  await exec(mw1, mw2)
+    .then(() => console.log('success'))
+    .catch(() => console.log('error'))
 })
