@@ -121,3 +121,25 @@ test('should work with type checker', async () => {
   await exec(mw1, mw2)
   expect(ctx).toEqual({ name: 'test', age: 10, gender: 'male' })
 })
+
+test('should work corrently even executing serveral times', async () => {
+  const mw = (i: number) => (ctx: any, next: Next) => {
+    ctx.index = i
+    return next()
+  }
+
+  const mw1 = jest.fn(mw(1))
+  const mw2 = jest.fn(mw(2))
+
+  const ctx = { index: -1 }
+  const exec = executorOf(ctx)
+
+  const promises = Array(2)
+    .fill(0)
+    .map(() => exec(mw1, mw2))
+  await Promise.all(promises)
+
+  expect(mw1).toBeCalledTimes(2)
+  expect(mw2).toBeCalledTimes(2)
+  expect(ctx.index).toBe(2)
+})
