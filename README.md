@@ -33,13 +33,13 @@ const mw3 = async (ctx, next) => {
   await next()
 }
 
-const exec = executorOf({ name: 'test' })
-await exec(mw1, mw2, mw3)
+const exec = executorOf(mw1, mw2, mw3)
+await exec({ name: 'test' })
 ```
 
 ## Middleware
 
-Each middleware should return a Promise object. You can simply add an `async` keyword in front of the function declation, or just return `next()`.
+### Each middleware should return a Promise object. You can simply add an `async` keyword in front of the function declation, or just return `next()`.
 
 ```js
 import { Next } from '@idan-loo/middleware'
@@ -64,7 +64,7 @@ const mw3 = async (ctx: Context, next: Next) => {
 }
 ```
 
-If you want to go on executing the next middlewares, you should call `next()` manually.
+### If you want to go on executing the next middlewares, you should call `next()` manually.
 
 ```js
 import { executorOf } from '@idan-loo/middleware'
@@ -83,7 +83,34 @@ const mw3 = async (ctx: Context, next: Next) => {
   return next()
 }
 
-const exec = executorOf({ name: 'test' })
 // mw3 won't be executed because mw2 doesn't call the next method
-exec(mw1, mw2, mw3)
+const exec = executorOf(mw1, mw2, mw3)
+exec({ name: 'test' })
+```
+
+### Each executor is a middleware as well, so you can combine several middlewares by simply calling the `executorOf` method
+
+```js
+import { executorOf } from '@idan-loo/middleware'
+
+const checkAuthed = async (ctx, next) => {
+  // Go next only if the `ctx.isAuthed` is true
+  if (ctx.isAuthed) {
+    return next()
+  }
+}
+
+const getSomePrivacy = async (ctx, next) => {
+  /* Do some things */
+  return next()
+}
+
+/* 
+   Combine the `getSomePrivacy` with the `checkAuthed`.
+   `checkAuthed` can be reused in everywhere you need.
+ */
+const getSomePrivacyIfAuthed = executorOf(checkAuthed, getSomePrivacy)
+
+const exec = executorOf(getSomePrivacyIfAuthed, handleThePrivacy)
+await exec(ctx)
 ```
