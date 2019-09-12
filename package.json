@@ -1,6 +1,6 @@
 {
   "name": "@idan-loo/middleware",
-  "version": "0.3.0",
+  "version": "1.0.0",
   "description": "Create your own middlewares to divide a large logic into serveral wares",
   "main": "./dist/index.js",
   "types": "./types",
