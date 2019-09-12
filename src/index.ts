@@ -1,2 +1,2 @@
-export * from './types'
-export { executorOf } from './middleware'
+export { Next, Middleware } from './types'
+export { compose } from './middleware'

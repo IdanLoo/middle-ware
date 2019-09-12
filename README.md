@@ -16,7 +16,7 @@ yarn add @idan-loo/middleware
 ## Usage
 
 ```js
-import { executorOf } from '@idan-loo/middleware'
+import { compose } from '@idan-loo/middleware'
 
 const mw1 = async (ctx, next) => {
   ctx.name = 'mw1'
@@ -33,7 +33,11 @@ const mw3 = async (ctx, next) => {
   await next()
 }
 
-const exec = executorOf(mw1, mw2, mw3)
+const exec = compose(
+  mw1,
+  mw2,
+  mw3
+)
 await exec({ name: 'test' })
 ```
 
@@ -67,7 +71,7 @@ const mw3 = async (ctx: Context, next: Next) => {
 ### If you want to go on executing the next middlewares, you should call `next()` manually.
 
 ```js
-import { executorOf } from '@idan-loo/middleware'
+import { compose } from '@idan-loo/middleware'
 
 const mw1 = async (ctx: Context, next: Next) => {
   ctx.name = 'mw1'
@@ -84,14 +88,18 @@ const mw3 = async (ctx: Context, next: Next) => {
 }
 
 // mw3 won't be executed because mw2 doesn't call the next method
-const exec = executorOf(mw1, mw2, mw3)
+const exec = compose(
+  mw1,
+  mw2,
+  mw3
+)
 exec({ name: 'test' })
 ```
 
-### Each executor is a middleware as well, so you can combine several middlewares by simply calling the `executorOf` method
+### Each calling of `compose` returns a middleware as well, so you can combine several middlewares by simply calling the `compose` method
 
 ```js
-import { executorOf } from '@idan-loo/middleware'
+import { compose } from '@idan-loo/middleware'
 
 const checkAuthed = async (ctx, next) => {
   // Go next only if the `ctx.isAuthed` is true
@@ -109,8 +117,14 @@ const getSomePrivacy = async (ctx, next) => {
    Combine the `getSomePrivacy` with the `checkAuthed`.
    `checkAuthed` can be reused in everywhere you need.
  */
-const getSomePrivacyIfAuthed = executorOf(checkAuthed, getSomePrivacy)
+const getSomePrivacyIfAuthed = compose(
+  checkAuthed,
+  getSomePrivacy
+)
 
-const exec = executorOf(getSomePrivacyIfAuthed, handleThePrivacy)
+const exec = compose(
+  getSomePrivacyIfAuthed,
+  handleThePrivacy
+)
 await exec(ctx)
 ```

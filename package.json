@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "Create your own middlewares to divide a large logic into serveral wares",
   "main": "./dist/index.js",
-  "types": "./types",
+  "types": "./types/index.d.ts",
   "scripts": {
     "build": "tacer-script build",
     "test": "tacer-script test",

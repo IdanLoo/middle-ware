@@ -3,7 +3,7 @@ import { ErrCalledMoreThanOnce } from './errors'
 
 const emptyLambda = async () => {}
 
-export function executorOf<T>(...middlewares: Middleware<T>[]): Middleware<T> {
+export function compose<T>(...middlewares: Middleware<T>[]): Middleware<T> {
   return async (ctx, next = emptyLambda) => {
     await exec(ctx, [...middlewares])
     await next()
